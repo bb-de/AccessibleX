@@ -36,7 +36,6 @@
 
   // Widget state
   let isOpen = false;
-  let currentTab = 'profiles';
   let settings = {
     textSize: 0,
     lineHeight: 0,
@@ -69,6 +68,10 @@
       accessibilityWidget: 'Accessible',
       reset: 'Reset',
       close: 'Close',
+      profiles: 'Profiles',
+      vision: 'Vision',
+      content: 'Content',
+      navigation: 'Navigation',
       visionImpaired: 'Vision Impaired',
       cognitiveDisability: 'Cognitive Disability',
       senior: 'Senior',
@@ -85,6 +88,10 @@
       accessibilityWidget: 'Accessible',
       reset: 'Zurücksetzen',
       close: 'Schließen',
+      profiles: 'Profile',
+      vision: 'Sicht',
+      content: 'Inhalt',
+      navigation: 'Navigation',
       visionImpaired: 'Sehbehindert',
       cognitiveDisability: 'Kognitive Behinderung',
       senior: 'Senior',
@@ -176,6 +183,9 @@
     return panel;
   }
 
+  // Widget state for tabs
+  let currentTab = 'profiles';
+
   // Create panel HTML with proper design
   function createPanelHTML() {
     return `
@@ -191,109 +201,190 @@
             <span style="font-weight: 600; font-size: 20px; color: #1a1a1a;">${t.accessibilityWidget}</span>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
+            <!-- Language dropdown -->
+            <select id="language-select" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; background: white; font-size: 12px;">
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="es">🇪🇸 Español</option>
+            </select>
             <button id="reset-btn" style="background: none; border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; color: #6b7280;">↻ ${t.reset}</button>
             <button id="close-btn" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 4px; color: #9ca3af;">×</button>
           </div>
         </div>
         
-        <!-- Content -->
-        <div style="flex: 1; overflow-y: auto; padding: 20px;">
-          <div style="margin-bottom: 20px;">
-            <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">BARRIEREFREIHEITS-PROFILE</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <button class="profile-btn" data-profile="visionImpaired" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="font-size: 32px; margin-bottom: 8px;">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="#1976D2">
-                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                  </svg>
+        <!-- Tab Navigation -->
+        <div style="display: flex; border-bottom: 1px solid #e5e5e5; background: #f9fafb;">
+          <button class="tab-btn" data-tab="profiles" style="flex: 1; padding: 12px; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2px solid ${currentTab === 'profiles' ? '#1976D2' : 'transparent'}; color: ${currentTab === 'profiles' ? '#1976D2' : '#6b7280'};">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span style="font-size: 11px; font-weight: 500;">Profile</span>
+          </button>
+          <button class="tab-btn" data-tab="vision" style="flex: 1; padding: 12px; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2px solid ${currentTab === 'vision' ? '#1976D2' : 'transparent'}; color: ${currentTab === 'vision' ? '#1976D2' : '#6b7280'};">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            </svg>
+            <span style="font-size: 11px; font-weight: 500;">Sicht</span>
+          </button>
+          <button class="tab-btn" data-tab="content" style="flex: 1; padding: 12px; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2px solid ${currentTab === 'content' ? '#1976D2' : 'transparent'}; color: ${currentTab === 'content' ? '#1976D2' : '#6b7280'};">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+            <span style="font-size: 11px; font-weight: 500;">Inhalt</span>
+          </button>
+          <button class="tab-btn" data-tab="navigation" style="flex: 1; padding: 12px; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; border-bottom: 2px solid ${currentTab === 'navigation' ? '#1976D2' : 'transparent'}; color: ${currentTab === 'navigation' ? '#1976D2' : '#6b7280'};">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            <span style="font-size: 11px; font-weight: 500;">Navigation</span>
+          </button>
+        </div>
+        
+        <!-- Tab Content -->
+        <div style="flex: 1; overflow-y: auto;">
+          <!-- Profiles Tab -->
+          <div id="profiles-tab" style="padding: 20px; display: ${currentTab === 'profiles' ? 'block' : 'none'};">
+            <div style="margin-bottom: 20px;">
+              <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">BARRIEREFREIHEITS-PROFILE</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button class="profile-btn" data-profile="visionImpaired" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <div style="font-size: 32px; margin-bottom: 8px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#1976D2">
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.visionImpaired}</div>
+                </button>
+                <button class="profile-btn" data-profile="cognitiveDisability" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <div style="font-size: 32px; margin-bottom: 8px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#EC407A">
+                      <path d="M9 11H7v9h2v-9zm4 0h-2v9h2v-9zm4 0h-2v9h2v-9zm2.5-5H14V4.5h-4V6H5.5v2h13V6z"/>
+                    </svg>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.cognitiveDisability}</div>
+                </button>
+                <button class="profile-btn" data-profile="senior" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <div style="font-size: 32px; margin-bottom: 8px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF9800">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.senior}</div>
+                </button>
+                <button class="profile-btn" data-profile="motorImpaired" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <div style="font-size: 32px; margin-bottom: 8px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#42A5F5">
+                      <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                    </svg>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.motorImpaired}</div>
+                </button>
+                <button class="profile-btn" data-profile="adhdFriendly" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <div style="font-size: 32px; margin-bottom: 8px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#66BB6A">
+                      <path d="M7 14H5v5h2v-5zm3-7H8v12h2V7zm3 3h-2v9h2v-9zm3-6h-2v15h2V4z"/>
+                    </svg>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.adhdFriendly}</div>
+                </button>
+                <button class="profile-btn" data-profile="dyslexiaFriendly" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <div style="font-size: 32px; margin-bottom: 8px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#5C6BC0">
+                      <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+                    </svg>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.dyslexiaFriendly}</div>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Quick settings in profiles tab -->
+            <div>
+              <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">SCHNELLE ANPASSUNGEN</h3>
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.textSize}</span>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="text-size-btn" data-action="decrease" style="width: 32px; height: 32px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; color: #6b7280;">−</button>
+                    <span id="text-size-value" style="min-width: 24px; text-align: center; font-size: 14px; font-weight: 600; color: #1f2937;">0</span>
+                    <button class="text-size-btn" data-action="increase" style="width: 32px; height: 32px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; color: #6b7280;">+</button>
+                  </div>
                 </div>
-                <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.visionImpaired}</div>
-              </button>
-              <button class="profile-btn" data-profile="cognitiveDisability" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="font-size: 32px; margin-bottom: 8px;">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="#EC407A">
-                    <path d="M9 11H7v9h2v-9zm4 0h-2v9h2v-9zm4 0h-2v9h2v-9zm2.5-5H14V4.5h-4V6H5.5v2h13V6z"/>
-                  </svg>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.contrastMode}</span>
+                  <select id="contrast-select" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: white; font-size: 12px;">
+                    <option value="default">Standard</option>
+                    <option value="increased">Erhöht</option>
+                    <option value="high">Hoch</option>
+                    <option value="inverted">Invertiert</option>
+                  </select>
                 </div>
-                <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.cognitiveDisability}</div>
-              </button>
-              <button class="profile-btn" data-profile="senior" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="font-size: 32px; margin-bottom: 8px;">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF9800">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                  </svg>
-                </div>
-                <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.senior}</div>
-              </button>
-              <button class="profile-btn" data-profile="motorImpaired" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="font-size: 32px; margin-bottom: 8px;">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="#42A5F5">
-                    <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
-                  </svg>
-                </div>
-                <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.motorImpaired}</div>
-              </button>
-              <button class="profile-btn" data-profile="adhdFriendly" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="font-size: 32px; margin-bottom: 8px;">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="#66BB6A">
-                    <path d="M7 14H5v5h2v-5zm3-7H8v12h2V7zm3 3h-2v9h2v-9zm3-6h-2v15h2V4z"/>
-                  </svg>
-                </div>
-                <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.adhdFriendly}</div>
-              </button>
-              <button class="profile-btn" data-profile="dyslexiaFriendly" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="font-size: 32px; margin-bottom: 8px;">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="#5C6BC0">
-                    <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
-                  </svg>
-                </div>
-                <div style="font-size: 12px; font-weight: 500; color: #1f2937;">${t.dyslexiaFriendly}</div>
-              </button>
+                
+                <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                  <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.darkMode}</span>
+                  <input type="checkbox" id="dark-mode-toggle" style="width: 20px; height: 20px; cursor: pointer;">
+                </label>
+              </div>
             </div>
           </div>
           
-          <!-- Quick settings -->
-          <div>
-            <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">SCHNELLE ANPASSUNGEN</h3>
+          <!-- Vision Tab -->
+          <div id="vision-tab" style="padding: 20px; display: none;">
+            <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase;">VISION & DARSTELLUNG</h3>
             <div style="display: flex; flex-direction: column; gap: 16px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.textSize}</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                  <button class="text-size-btn" data-action="decrease" style="width: 32px; height: 32px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; color: #6b7280;">−</button>
-                  <span id="text-size-value" style="min-width: 24px; text-align: center; font-size: 14px; font-weight: 600; color: #1f2937;">0</span>
-                  <button class="text-size-btn" data-action="increase" style="width: 32px; height: 32px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; color: #6b7280;">+</button>
-                </div>
-              </div>
-              
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.contrastMode}</span>
-                <select id="contrast-select" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: white; font-size: 12px;">
-                  <option value="default">Standard</option>
-                  <option value="increased">Erhöht</option>
-                  <option value="high">Hoch</option>
-                  <option value="inverted">Invertiert</option>
-                </select>
-              </div>
-              
-              <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.darkMode}</span>
-                <input type="checkbox" id="dark-mode-toggle" style="width: 20px; height: 20px; cursor: pointer;">
-              </label>
-              
               <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                 <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.highlightLinks}</span>
                 <input type="checkbox" id="highlight-links-toggle" style="width: 20px; height: 20px; cursor: pointer;">
               </label>
-              
               <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                 <span style="font-size: 14px; color: #1f2937; font-weight: 500;">${t.highlightTitles}</span>
                 <input type="checkbox" id="highlight-titles-toggle" style="width: 20px; height: 20px; cursor: pointer;">
               </label>
             </div>
           </div>
+          
+          <!-- Content Tab -->
+          <div id="content-tab" style="padding: 20px; display: none;">
+            <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase;">INHALTS-ANPASSUNGEN</h3>
+            <p style="color: #6b7280; font-size: 14px;">Weitere Optionen folgen...</p>
+          </div>
+          
+          <!-- Navigation Tab -->
+          <div id="navigation-tab" style="padding: 20px; display: none;">
+            <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase;">NAVIGATIONS-HILFEN</h3>
+            <p style="color: #6b7280; font-size: 14px;">Weitere Optionen folgen...</p>
+          </div>
         </div>
       </div>
     `;
+  }
+
+  // Switch tabs
+  function switchTab(tabId) {
+    currentTab = tabId;
+    
+    // Hide all tabs
+    const tabs = ['profiles', 'vision', 'content', 'navigation'];
+    tabs.forEach(tab => {
+      const tabContent = document.getElementById(`${tab}-tab`);
+      const tabButton = document.querySelector(`[data-tab="${tab}"]`);
+      if (tabContent) tabContent.style.display = 'none';
+      if (tabButton) {
+        tabButton.style.borderBottom = '2px solid transparent';
+        tabButton.style.color = '#6b7280';
+      }
+    });
+    
+    // Show active tab
+    const activeTab = document.getElementById(`${tabId}-tab`);
+    const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
+    if (activeTab) activeTab.style.display = 'block';
+    if (activeButton) {
+      activeButton.style.borderBottom = '2px solid #1976D2';
+      activeButton.style.color = '#1976D2';
+    }
   }
 
   // Setup panel events
@@ -303,6 +394,23 @@
     
     // Reset button
     panel.querySelector('#reset-btn').addEventListener('click', resetSettings);
+    
+    // Tab buttons
+    panel.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        switchTab(tabId);
+      });
+    });
+    
+    // Language select
+    panel.querySelector('#language-select').addEventListener('change', function() {
+      config.language = this.value;
+      // Reload panel with new language
+      panel.innerHTML = createPanelHTML();
+      setupPanelEvents(panel);
+      updateUI();
+    });
     
     // Profile buttons
     panel.querySelectorAll('.profile-btn').forEach(btn => {
@@ -420,6 +528,7 @@
 
   // Apply profile
   function applyProfile(profileId) {
+    // Reset first
     settings = {
       textSize: 0,
       lineHeight: 0,
