@@ -401,14 +401,15 @@
 }
 
     // Apply styles
-    styleTag.textContent = css;
-    document.head.appendChild(styleTag);
-    
-    // Additional non-CSS adjustments here
-    if (settings.keyboardNavigation) {
-      enableKeyboardNavigation();
-    }
+     // Apply styles
+  styleTag.textContent = css;
+  document.head.appendChild(styleTag);
+
+  // Additional non-CSS adjustments here
+  if (settings.keyboardNavigation) {
+    enableKeyboardNavigation();
   }
+}
   
   // Reset all applied accessibility styles
   function resetAccessibilityStyles() {
