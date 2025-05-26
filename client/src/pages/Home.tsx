@@ -1,9 +1,22 @@
 import React from 'react';
 import { Link } from 'wouter';
 import { LogoImage } from '@/components/accessibility/LogoImage';
+import { AccessibilityWidget } from '@/components/AccessibilityWidget';
 import { Helmet } from 'react-helmet';
 
 export default function Home() {
+  // Check for embed mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const isEmbedMode = urlParams.get('embed') === 'true';
+  
+  // If embed mode, show only the widget (without script)
+  if (isEmbedMode) {
+    return (
+      <div className="min-h-screen bg-transparent">
+        <AccessibilityWidget isEmbedded={true} />
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto px-4 py-8">
       <Helmet>
@@ -161,18 +174,8 @@ export default function Home() {
         <p>© 2025 brandingbrothers.de · Alle Rechte vorbehalten</p>
       </footer>
       
-      {/* Script-Widget direkt einbinden anstatt der Komponente */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          // Inline Widget Script für die Demo-Seite
-          (function() {
-            if (document.getElementById('accessiblex-widget-button')) return;
-            const script = document.createElement('script');
-            script.src = '/embed.js';
-            document.head.appendChild(script);
-          })();
-        `
-      }} />
+      {/* Original React Widget wieder aktivieren für die Hauptseite */}
+      <AccessibilityWidget />
     </div>
   );
 }
