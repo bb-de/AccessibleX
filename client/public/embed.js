@@ -262,7 +262,7 @@
     // Line height adjustments
     if (settings.lineHeight !== 0) {
       const lineHeightValue = 1.5 + (settings.lineHeight * 0.1);
-      css += \`
+      css += `
         p, div, span, li {
           line-height: \${lineHeightValue} !important;
         }
