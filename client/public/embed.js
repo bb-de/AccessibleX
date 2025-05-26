@@ -103,7 +103,7 @@
         <circle cx="12" cy="12" r="10"></circle>
         <path d="M12 8v4M12 16h.01"></path>
       </svg>
-    \`;
+    `;
     
     container.appendChild(button);
     document.body.appendChild(container);
