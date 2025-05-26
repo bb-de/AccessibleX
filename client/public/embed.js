@@ -158,15 +158,9 @@
     const iframe = createWidgetIframe();
     
     // Set iframe src after creating element (prevents flicker)
-    // Zeile 141
-const iframeSrc = new URL('https://accessiblex.netlify.app/widget'); // <-- ersetzt alte URL
-// Zeile 142
-Object.keys(config).forEach(key => {
-// Zeile 143
-  iframeSrc.searchParams.append(key, String(config[key]));
-});
-
-     iframeSrc.searchParams.append(key, String(config[key]));
+    const iframeSrc = new URL(config.apiEndpoint + '/widget-embed');
+    Object.keys(config).forEach(key => {
+      iframeSrc.searchParams.append(key, String(config[key as keyof typeof config]));
     });
     iframe.src = iframeSrc.toString();
     
