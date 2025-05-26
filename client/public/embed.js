@@ -160,7 +160,7 @@
     // Set iframe src after creating element (prevents flicker)
     const iframeSrc = new URL(config.apiEndpoint + '/widget-embed');
     Object.keys(config).forEach(key => {
-      iframeSrc.searchParams.append(key, String(config[key as keyof typeof config]));
+     iframeSrc.searchParams.append(key, String(config[key]));
     });
     iframe.src = iframeSrc.toString();
     
@@ -252,11 +252,11 @@
     // Text size adjustments
     if (settings.textSize !== 0) {
       const textSizePercent = 100 + (settings.textSize * 10);
-      css += \`
-        body, p, div, span, a, li, input, button, textarea, select, label {
-          font-size: \${textSizePercent}% !important;
-        }
-      \`;
+      css += `
+  body, p, div, span, a, li, input, button, textarea, select, label {
+    font-size: ${textSizePercent}% !important;
+  }
+`;
     }
     
     // Line height adjustments
