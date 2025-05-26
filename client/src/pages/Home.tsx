@@ -85,14 +85,14 @@ export default function Home() {
               </ul>
               <div className="flex flex-wrap gap-4">
                 <Link href="/widget-integration">
-                  <span className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer inline-block">
+                  <a className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
                     Widget für Ihre Website
-                  </span>
+                  </a>
                 </Link>
                 <Link href="/widget-docs">
-                  <span className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors cursor-pointer inline-block">
+                  <a className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors">
                     Technische Dokumentation
-                  </span>
+                  </a>
                 </Link>
               </div>
             </div>
@@ -177,9 +177,9 @@ export default function Home() {
             Integrieren Sie unser Widget in Ihre Website und verbessern Sie die Zugänglichkeit für alle Ihre Besucher.
           </p>
           <Link href="/widget-integration">
-            <span className="px-8 py-4 bg-blue-600 text-white rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors cursor-pointer inline-block">
+            <a className="px-8 py-4 bg-blue-600 text-white rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors inline-block">
               Jetzt kostenlos testen
-            </span>
+            </a>
           </Link>
         </section>
       </main>
