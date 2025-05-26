@@ -155,7 +155,7 @@
     
     // Nachrichten vom iframe empfangen
     window.addEventListener('message', function(event) {
-      if (event.origin !== window.location.origin) {
+      if (event.origin !== 'https://accessiblex.netlify.app') {
         return;
       }
       
