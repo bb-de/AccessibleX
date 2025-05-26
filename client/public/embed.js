@@ -21,7 +21,9 @@
   // Extract configuration from data attributes
   const config = { ...DEFAULT_CONFIG };
   for (const key in DEFAULT_CONFIG) {
-    if (currentScript.dataset[key as keyof typeof DEFAULT_CONFIG]) {
+    if (currentScript.dataset[key]) {
+  config[key] = currentScript.dataset[key];
+}
       (config as any)[key] = currentScript.dataset[key as keyof typeof DEFAULT_CONFIG];
     }
   }
