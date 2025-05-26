@@ -1,82 +1,22 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
-import { translations } from '@/lib/translation';
-import { applyAccessibilityStyles } from '@/lib/a11y-helpers';
+import { AccessibilityProfileId, AccessibilitySettings, Language } from '@/types/accessibility';
+import { translations } from '@/data/translations';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-// Define types
-export type AccessibilityProfileId = 
-  | 'visionImpaired' 
-  | 'cognitiveDisability' 
-  | 'senior' 
-  | 'motorImpaired' 
-  | 'adhdFriendly' 
-  | 'dyslexiaFriendly'
-  | 'efficiencyMode'
-  | 'screenreaderMode';
-
-export type ContrastMode = 'default' | 'increased' | 'high' | 'dark' | 'light';
-export type FontFamily = 'default' | 'readable' | 'dyslexic';
-export type Language = 'en' | 'de' | 'fr' | 'es';
-export type TextAlign = 'default' | 'left' | 'center' | 'right';
-
-export type ColorOption = 'default' | 'blue' | 'purple' | 'red' | 'orange' | 'teal' | 'green' | 'white' | 'black';
-
-export type CursorType = 'default' | 'big' | 'bigger' | 'biggest';
-export type CursorColor = 'white' | 'black' | 'blue' | 'red' | 'green' | 'yellow' | 'purple';
-
-export interface AccessibilitySettings {
-  // Vision settings
-  contrastMode: ContrastMode;
-  saturation: number;
-  monochrome: number;
-  textColor: ColorOption;
-  titleColor: ColorOption;
-  backgroundColor: ColorOption;
-  textSize: number;
-  lineHeight: number;
-  letterSpacing: number;
-  darkMode: boolean;
-  hideImages: boolean;
-  stopAnimations: boolean;
-  
-  // Content settings
-  highlightTitles: boolean;
-  highlightLinks: boolean;
-  textToSpeech: boolean;
-  readingMask: boolean;
-  readingGuide: boolean;
-  fontFamily: FontFamily;
-  wordSpacing: number;
-  textAlign: TextAlign;
-  
-  // Navigation settings
-  keyboardNavigation: boolean;
-  highlightFocus: boolean;
-  customCursor: boolean;
-  cursorSize: CursorType;
-  cursorColor: CursorColor;
-  virtualKeyboard: boolean;
-  pageStructure: boolean;
-}
-
-export const defaultSettings: AccessibilitySettings = {
-  contrastMode: 'default',
-  saturation: 100,
-  monochrome: 0,
-  textColor: 'default',
-  titleColor: 'default',
-  backgroundColor: 'default',
+// Default accessibility settings
+const defaultSettings: AccessibilitySettings = {
   textSize: 0,
   lineHeight: 0,
   letterSpacing: 0,
+  contrastMode: 'default',
   darkMode: false,
-  hideImages: false,
-  stopAnimations: false,
-  
-  highlightTitles: false,
+  monochromeFilter: false,
+  colorSaturation: 0,
   highlightLinks: false,
-  textToSpeech: false,
+  highlightTitles: false,
+  stopAnimations: false,
+  hideImages: false,
   readingMask: false,
   readingGuide: false,
   fontFamily: 'default',
@@ -140,6 +80,17 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   // Save settings when they change
   useEffect(() => {
     localStorage.setItem('accessibility-settings', JSON.stringify(settings));
+    
+    // Send settings to parent window if in iframe
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEmbedMode = urlParams.get('embed') === 'true';
+    
+    if (isEmbedMode && window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'accessibility-settings-change',
+        settings: settings
+      }, '*');
+    }
   }, [settings]);
 
   // Save language when it changes
@@ -248,139 +199,62 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
         case 'dyslexiaFriendly':
           return {
             fontFamily: 'dyslexic',
-            lineHeight: 2,
-            wordSpacing: 50,
-            letterSpacing: 1,
+            lineHeight: 1,
+            letterSpacing: 2,
             textAlign: 'left',
-          };
-        case 'efficiencyMode':
-          return {
-            stopAnimations: true,
-            darkMode: true,
-            highlightLinks: true,
-            highlightFocus: true,
-            pageStructure: true,
-            customCursor: true,
-            cursorSize: 'bigger',
-            cursorColor: 'red',
-          };
-        case 'screenreaderMode':
-          return {
-            keyboardNavigation: true,
-            textToSpeech: true,
+            readingGuide: true,
           };
         default:
           return {};
       }
     })();
-
-    // Apply default settings first, then profile settings
-    setSettings({
-      ...defaultSettingsCopy,
-      ...profileSettings,
-    });
-
-    // Log analytics
-    try {
-      apiRequest('POST', '/api/analytics/profile-applied', { 
-        profileId
-      });
-    } catch (error) {
-      console.error('Failed to log profile application', error);
-    }
-
-    // Show toast notification
-    toast({
-      title: translations[language].profileApplied,
-      description: translations[language][profileId],
-    });
     
-    // Only close the widget if explicitly requested
+    // Apply the new settings
+    const newSettings = { ...defaultSettingsCopy, ...profileSettings };
+    setSettings(newSettings);
+    
     if (closeWidget) {
       setIsOpen(false);
     }
+    
+    toast({
+      title: translations[language].profileApplied,
+      description: translations[language].profileDescription,
+    });
   }, [language, toast]);
 
   // Reset all settings to default
   const resetSettings = useCallback(() => {
     setSettings(defaultSettings);
-    
-    // Log analytics
-    try {
-      apiRequest('POST', '/api/analytics/settings-reset', {});
-    } catch (error) {
-      console.error('Failed to log settings reset', error);
-    }
-
-    // Show toast notification
     toast({
       title: translations[language].settingsReset,
       description: translations[language].settingsResetDescription,
     });
   }, [language, toast]);
-  
-  // Handle Alt+U keyboard shortcut for settings reset
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Check for Alt+U combination
-      if (event.altKey && event.key === 'u') {
-        resetSettings();
-        event.preventDefault();
-      }
-    };
 
-    window.addEventListener('keydown', handleKeyDown);
-    
-    // Cleanup listener on unmount
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [resetSettings]);
-
-  // Apply all accessibility changes to the DOM
   const applyAccessibilityChanges = useCallback(() => {
-    applyAccessibilityStyles(settings);
-  }, [settings]);
+    // This function is called to apply changes
+    // The actual application happens in the useEffect above
+  }, []);
 
-  // Apply changes whenever settings change
-  useEffect(() => {
-    applyAccessibilityChanges();
-  }, [settings, applyAccessibilityChanges]);
-  
-  // Listen for page structure panel close event
-  useEffect(() => {
-    const handlePageStructureClose = () => {
-      if (settings.pageStructure) {
-        updateSetting('pageStructure', false);
-      }
-    };
-    
-    // Listen for our custom event from the a11y-helpers.ts
-    document.addEventListener('accessibility:page-structure-closed', handlePageStructureClose);
-    
-    return () => {
-      document.removeEventListener('accessibility:page-structure-closed', handlePageStructureClose);
-    };
-  }, [settings.pageStructure, updateSetting]);
+  const contextValue: AccessibilityContextType = {
+    isOpen,
+    toggleWidget,
+    closeWidget,
+    settings,
+    updateSetting,
+    incrementSetting,
+    decrementSetting,
+    resetSettings,
+    applyProfile,
+    language,
+    setLanguage,
+    translations: translations[language],
+    applyAccessibilityChanges,
+  };
 
   return (
-    <AccessibilityContext.Provider
-      value={{
-        isOpen,
-        toggleWidget,
-        closeWidget,
-        settings,
-        updateSetting,
-        incrementSetting,
-        decrementSetting,
-        resetSettings,
-        applyProfile,
-        language,
-        setLanguage,
-        translations: {...translations.en, ...translations[language]},
-        applyAccessibilityChanges,
-      }}
-    >
+    <AccessibilityContext.Provider value={contextValue}>
       {children}
     </AccessibilityContext.Provider>
   );
