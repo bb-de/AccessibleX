@@ -476,5 +476,6 @@
   } else {
     initWidget();
   }
+  }
 })();
 
