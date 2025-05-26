@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barrierefreiheits-Widget Beispiel</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    
+    h1, h2, h3 {
+      color: #0066cc;
+    }
+    
+    code {
+      background-color: #f5f5f5;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      display: block;
+      padding: 15px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #ddd;
+    }
+    
+    .highlight {
+      background-color: #fff8dc;
+      border-left: 4px solid #ffd700;
+      padding: 10px 15px;
+      margin: 20px 0;
+    }
+    
+    .note {
+      background-color: #f0f8ff;
+      border-left: 4px solid #1e90ff;
+      padding: 10px 15px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Barrierefreiheits-Widget Einbindung</h1>
+  
+  <p>Diese Beispielseite zeigt, wie das Barrierefreiheits-Widget in jede Website eingebunden werden kann.</p>
+  
+  <div class="highlight">
+    <h2>So bindest du das Widget ein:</h2>
+    <p>Füge einfach folgenden Code-Schnipsel in den <code>&lt;head&gt;</code> oder <code>&lt;body&gt;</code> deiner Website ein:</p>
+    
+    <code>
+&lt;script src="https://bb-de.github.io/accessibility-widget/accessibility-widget.js"&gt;&lt;/script&gt;
+    </code>
+  </div>
+  
+  <h2>Konfigurationsoptionen</h2>
+  
+  <p>Das Widget kann über folgende Attribute angepasst werden:</p>
+  
+  <ul>
+    <li><strong>position</strong>: Position des Widget-Buttons ("right" oder "left")</li>
+    <li><strong>language</strong>: Sprache des Widgets (de, en)</li>
+    <li><strong>theme</strong>: Farbschema des Widgets (default)</li>
+  </ul>
+  
+  <p>Beispiel für angepasste Konfiguration:</p>
+  
+  <code>
+&lt;script&gt;
+  // Widget-Konfiguration anpassen
+  window.onload = function() {
+    if (window.AccessibilityWidget) {
+      // Sprache auf Englisch ändern
+      window.AccessibilityWidget.setLanguage('en');
+      
+      // Ein Profil direkt anwenden
+      window.AccessibilityWidget.applyProfile('visionImpaired');
+    }
+  };
+&lt;/script&gt;
+  </code>
+  
+  <div class="note">
+    <h3>Hinweis zur Content Security Policy (CSP)</h3>
+    <p>Wenn deine Website eine strikte Content Security Policy verwendet, musst du möglicherweise folgende Direktiven hinzufügen:</p>
+    
+    <code>
+Content-Security-Policy: 
+  script-src 'self' https://bb-de.github.io;
+  style-src 'self' https://bb-de.github.io 'unsafe-inline';
+    </code>
+  </div>
+  
+  <h2>Das Widget ist auf dieser Seite aktiv</h2>
+  <p>Klicke auf das Barrierefreiheits-Symbol unten rechts, um das Widget zu öffnen und zu testen.</p>
+  
+  <!-- Widget-Einbindung für diese Beispielseite -->
+  <script src="accessibility-widget.js"></script>
+
+</body>
+</html>
