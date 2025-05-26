@@ -24,7 +24,7 @@
     }
   }
 
-  // Widget Button erstellen
+  // Widget Button erstellen (mit unserem schönen Design)
   function createWidgetButton() {
     const button = document.createElement('button');
     button.id = 'accessiblex-widget-button';
@@ -32,36 +32,42 @@
     button.style.cssText = `
       position: fixed;
       z-index: 999999;
-      width: 48px;
-      height: 48px;
+      width: 64px;
+      height: 64px;
       border-radius: 50%;
-      background-color: ${config.color};
-      color: white;
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
       transition: all 0.3s ease;
+      background: transparent;
+      padding: 0;
       ${getPositionStyles(config.position)}
     `;
     
-    button.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M12 1v6m0 10v6m11-7h-6m-10 0H1m15.5-6.5l-4.24-4.24M7.76 16.24l-4.24 4.24m0-11.31l4.24 4.24m8.48 8.48l4.24-4.24"></path>
-      </svg>
+    // Unser schönes Widget-Button-Logo verwenden
+    const img = document.createElement('img');
+    img.src = 'https://25b615b4-07e9-4029-b10c-54fd7e4f443c-00-2t2kt5l2qjeqe.spock.replit.dev/widget-button-logo.png';
+    img.alt = 'Accessibility';
+    img.style.cssText = `
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
     `;
+    
+    button.appendChild(img);
     
     button.addEventListener('mouseenter', function() {
       this.style.transform = 'scale(1.1)';
-      this.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.25)';
+      this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.25)';
     });
     
     button.addEventListener('mouseleave', function() {
       this.style.transform = 'scale(1)';
-      this.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+      this.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.15)';
     });
     
     document.body.appendChild(button);
