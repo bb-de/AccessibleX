@@ -72,7 +72,7 @@
   function createWidgetIframe() {
     const iframe = document.createElement('iframe');
     iframe.id = 'accessiblex-widget-iframe';
-    iframe.src = `https://accessiblex.netlify.app/?embed=true&hideButton=true&position=${config.position}&color=${encodeURIComponent(config.color)}&language=${config.language}`;
+    iframe.src = `https://25b615b4-07e9-4029-b10c-54fd7e4f443c-00-2t2kt5l2qjeqe.spock.replit.dev/?embed=true&hideButton=true&position=${config.position}&color=${encodeURIComponent(config.color)}&language=${config.language}`;
     iframe.style.cssText = `
       position: fixed;
       z-index: 999998;
@@ -155,7 +155,7 @@
     
     // Nachrichten vom iframe empfangen
     window.addEventListener('message', function(event) {
-      if (event.origin !== 'https://accessiblex.netlify.app') {
+      if (event.origin !== 'https://25b615b4-07e9-4029-b10c-54fd7e4f443c-00-2t2kt5l2qjeqe.spock.replit.dev') {
         return;
       }
       
