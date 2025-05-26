@@ -188,18 +188,8 @@ export default function Home() {
         <p>© 2025 brandingbrothers.de · Alle Rechte vorbehalten</p>
       </footer>
       
-      {/* Script-Widget direkt einbinden */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          // Widget-Script direkt laden
-          (function() {
-            if (document.getElementById('accessiblex-widget-button')) return;
-            const script = document.createElement('script');
-            script.src = '/embed.js';
-            document.head.appendChild(script);
-          })();
-        `
-      }} />
+      {/* Das originale Widget verwenden */}
+      <AccessibilityWidget />
     </div>
   );
 }
