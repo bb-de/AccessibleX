@@ -49,7 +49,7 @@
     
     // Unser schönes Widget-Button-Logo verwenden
     const img = document.createElement('img');
-    img.src = 'https://25b615b4-07e9-4029-b10c-54fd7e4f443c-00-2t2kt5l2qjeqe.spock.replit.dev/widget-button-logo.png';
+    img.src = 'https://accessiblex.netlify.app/widget-button-logo.png';
     img.alt = 'Accessibility';
     img.style.cssText = `
       width: 100%;
@@ -78,12 +78,12 @@
   function createWidgetIframe() {
     const iframe = document.createElement('iframe');
     iframe.id = 'accessiblex-widget-iframe';
-    iframe.src = `https://25b615b4-07e9-4029-b10c-54fd7e4f443c-00-2t2kt5l2qjeqe.spock.replit.dev/?embed=true&hideButton=true&position=${config.position}&color=${encodeURIComponent(config.color)}&language=${config.language}`;
+    iframe.src = `https://accessiblex.netlify.app/?embed=true&hideButton=true&position=${config.position}&color=${encodeURIComponent(config.color)}&language=${config.language}`;
     iframe.style.cssText = `
       position: fixed;
       z-index: 999998;
-      width: 350px;
-      height: 500px;
+      width: 380px;
+      height: 600px;
       border: none;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -161,7 +161,7 @@
     
     // Nachrichten vom iframe empfangen
     window.addEventListener('message', function(event) {
-      if (event.origin !== 'https://25b615b4-07e9-4029-b10c-54fd7e4f443c-00-2t2kt5l2qjeqe.spock.replit.dev') {
+      if (event.origin !== 'https://accessiblex.netlify.app') {
         return;
       }
       
@@ -169,6 +169,11 @@
         if (isOpen) {
           toggleWidget();
         }
+      }
+      
+      // Barrierefreiheits-Einstellungen auf Host-Website anwenden
+      if (event.data.type === 'accessibility-settings-change') {
+        applyAccessibilityToHost(event.data.settings);
       }
     });
   }
@@ -190,6 +195,103 @@
       createWidgetButton();
       createWidgetIframe();
       setupToggleFunction();
+    }
+  }
+
+  // Barrierefreiheits-Einstellungen auf Host-Website anwenden
+  function applyAccessibilityToHost(settings) {
+    // Vorhandene Styles entfernen
+    const existingStyle = document.getElementById('accessiblex-host-styles');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+    
+    // Neue Styles erstellen
+    let css = '';
+    
+    // Text-Größe
+    if (settings.textSize && settings.textSize > 0) {
+      const scale = 1 + (settings.textSize * 0.2);
+      css += `* { font-size: ${scale}em !important; }`;
+    }
+    
+    // Kontrast-Modus
+    if (settings.contrastMode === 'high') {
+      css += `
+        * { 
+          background-color: black !important; 
+          color: white !important; 
+          border-color: white !important;
+        }
+        a { color: yellow !important; }
+      `;
+    } else if (settings.contrastMode === 'inverted') {
+      css += `html { filter: invert(1) !important; }`;
+    }
+    
+    // Dunkler Modus
+    if (settings.darkMode) {
+      css += `
+        body, html { 
+          background-color: #1a1a1a !important; 
+          color: #ffffff !important; 
+        }
+        * { 
+          background-color: #2a2a2a !important; 
+          color: #ffffff !important; 
+        }
+      `;
+    }
+    
+    // Links hervorheben
+    if (settings.highlightLinks) {
+      css += `
+        a { 
+          background-color: yellow !important; 
+          color: black !important; 
+          text-decoration: underline !important;
+          font-weight: bold !important;
+        }
+      `;
+    }
+    
+    // Überschriften hervorheben
+    if (settings.highlightTitles) {
+      css += `
+        h1, h2, h3, h4, h5, h6 { 
+          background-color: #ffeb3b !important; 
+          color: #000 !important; 
+          padding: 4px !important;
+          border-left: 4px solid #ff9800 !important;
+        }
+      `;
+    }
+    
+    // Schriftart
+    if (settings.fontFamily === 'readable') {
+      css += `* { font-family: Arial, sans-serif !important; }`;
+    } else if (settings.fontFamily === 'dyslexic') {
+      css += `* { font-family: 'OpenDyslexic', Arial, sans-serif !important; }`;
+    }
+    
+    // Zeilenabstand
+    if (settings.lineHeight && settings.lineHeight > 0) {
+      const lineHeight = 1 + (settings.lineHeight * 0.3);
+      css += `* { line-height: ${lineHeight} !important; }`;
+    }
+    
+    // Buchstabenabstand
+    if (settings.letterSpacing && settings.letterSpacing > 0) {
+      const spacing = settings.letterSpacing * 2;
+      css += `* { letter-spacing: ${spacing}px !important; }`;
+    }
+    
+    // Styles anwenden
+    if (css) {
+      const style = document.createElement('style');
+      style.id = 'accessiblex-host-styles';
+      style.textContent = css;
+      document.head.appendChild(style);
     }
   }
 
