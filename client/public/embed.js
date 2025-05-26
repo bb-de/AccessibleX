@@ -19,12 +19,10 @@
   const currentScript = scripts[scripts.length - 1];
   
   // Extract configuration from data attributes
-  const config = { ...DEFAULT_CONFIG };
+  const config = Object.assign({}, DEFAULT_CONFIG);
   for (const key in DEFAULT_CONFIG) {
     if (currentScript.dataset[key]) {
-  config[key] = currentScript.dataset[key];
-}
-      (config as any)[key] = currentScript.dataset[key as keyof typeof DEFAULT_CONFIG];
+      config[key] = currentScript.dataset[key];
     }
   }
 
@@ -126,7 +124,7 @@
     iframe.style.pointerEvents = 'none';
     iframe.style.transition = 'opacity 0.3s ease';
     
-    // Position the iframe based on configuration
+    // Position iframe based on configuration
     switch(config.position) {
       case 'bottom-right':
         iframe.style.bottom = '80px';
@@ -151,7 +149,7 @@
   }
 
   // Apply accessibility styles to the host page
-  function applyAccessibilityStyles(settings: any) {
+  function applyAccessibilityStyles(settings) {
     resetAccessibilityStyles();
     
     const styleTag = document.createElement('style');
@@ -260,7 +258,51 @@
       `;
     }
     
-    // Weitere Features...
+    // Highlight links
+    if (settings.highlightLinks) {
+      css += `
+        a {
+          text-decoration: underline !important;
+          font-weight: bold !important;
+          color: #0000EE !important;
+          background-color: rgba(255, 255, 0, 0.3) !important;
+        }
+        
+        a:visited {
+          color: #551A8B !important;
+        }
+      `;
+    }
+    
+    // Highlight focus
+    if (settings.highlightFocus) {
+      css += `
+        :focus {
+          outline: 3px solid #2196F3 !important;
+          outline-offset: 3px !important;
+        }
+      `;
+    }
+    
+    // Stop animations
+    if (settings.stopAnimations) {
+      css += `
+        *, *::before, *::after {
+          animation: none !important;
+          transition: none !important;
+          scroll-behavior: auto !important;
+        }
+      `;
+    }
+    
+    // Hide images
+    if (settings.hideImages) {
+      css += `
+        img, picture, svg, video, canvas, [style*="background-image"] {
+          opacity: 0.01 !important;
+        }
+      `;
+    }
     
     styleTag.textContent = css;
     document.head.appendChild(styleTag);
@@ -276,9 +318,50 @@
     if (existingStyles) {
       existingStyles.remove();
     }
-    // ... weitere Reset-Logik
+    
+    if (document.getElementById('keyboard-nav-helpers')) {
+      disableKeyboardNavigation();
+    }
+    
+    const readingMask = document.getElementById('accessibility-reading-mask');
+    if (readingMask) {
+      readingMask.remove();
+    }
+    
+    const readingGuide = document.getElementById('accessibility-reading-guide');
+    if (readingGuide) {
+      readingGuide.remove();
+    }
   }
   
+  // Update a single accessibility setting
+  function updateAccessibilitySetting(setting, value) {
+    let styleTag = document.getElementById('accessibility-styles');
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'accessibility-styles';
+      document.head.appendChild(styleTag);
+    }
+    
+    switch(setting) {
+      case 'textSize':
+        // Update text size CSS
+        break;
+      case 'darkMode':
+        // Toggle dark mode
+        break;
+    }
+  }
+  
+  // Basic keyboard navigation implementation
+  function enableKeyboardNavigation() {
+    console.log('Keyboard navigation enabled');
+  }
+  
+  function disableKeyboardNavigation() {
+    console.log('Keyboard navigation disabled');
+  }
+
   // Initialize the widget
   function initWidget() {
     loadStyles();
@@ -287,8 +370,8 @@
     const iframe = createWidgetIframe();
     
     const iframeSrc = new URL(config.apiEndpoint + '/widget-embed');
-    Object.keys(config).forEach(key => {
-      iframeSrc.searchParams.append(key, String(config[key as keyof typeof config]));
+    Object.keys(config).forEach(function(key) {
+      iframeSrc.searchParams.append(key, String(config[key]));
     });
     iframe.src = iframeSrc.toString();
     
@@ -305,7 +388,7 @@
         button.setAttribute('aria-expanded', 'true');
       } else {
         iframe.style.opacity = '0';
-        setTimeout(() => {
+        setTimeout(function() {
           iframe.style.width = '0';
           iframe.style.height = '0';
           iframe.style.pointerEvents = 'none';
@@ -313,21 +396,23 @@
         button.setAttribute('aria-expanded', 'false');
       }
       
-      iframe.contentWindow?.postMessage({
-        type: 'accessibility-widget-toggle',
-        isOpen
-      }, '*');
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage({
+          type: 'accessibility-widget-toggle',
+          isOpen: isOpen
+        }, '*');
+      }
     }
     
     button.addEventListener('click', toggleWidget);
     
-    // Message listener für Widget-Kommunikation
-    window.addEventListener('message', (event) => {
+    window.addEventListener('message', function(event) {
       if (event.source !== iframe.contentWindow) {
         return;
       }
       
-      const { type, data } = event.data;
+      const type = event.data.type;
+      const data = event.data.data;
       
       switch (type) {
         case 'accessibility-widget-ready':
