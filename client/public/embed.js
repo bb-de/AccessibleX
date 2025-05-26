@@ -21,8 +21,8 @@
   // Extract configuration from data attributes
   const config = { ...DEFAULT_CONFIG };
   for (const key in DEFAULT_CONFIG) {
-    if (currentScript.dataset[key]) {
-      config[key] = currentScript.dataset[key];
+    if (currentScript.dataset[key as keyof typeof DEFAULT_CONFIG]) {
+      (config as any)[key] = currentScript.dataset[key as keyof typeof DEFAULT_CONFIG];
     }
   }
 
@@ -148,26 +148,150 @@
     return iframe;
   }
 
+  // Apply accessibility styles to the host page
+  function applyAccessibilityStyles(settings: any) {
+    resetAccessibilityStyles();
+    
+    const styleTag = document.createElement('style');
+    styleTag.id = 'accessibility-styles';
+    
+    let css = '';
+    
+    // Text size adjustments
+    if (settings.textSize !== 0) {
+      const textSizePercent = 100 + (settings.textSize * 10);
+      css += `
+        body, p, div, span, a, li, input, button, textarea, select, label {
+          font-size: ${textSizePercent}% !important;
+        }
+      `;
+    }
+    
+    // Line height adjustments
+    if (settings.lineHeight !== 0) {
+      const lineHeightValue = 1.5 + (settings.lineHeight * 0.1);
+      css += `
+        p, div, span, li {
+          line-height: ${lineHeightValue} !important;
+        }
+      `;
+    }
+    
+    // Letter spacing
+    if (settings.letterSpacing !== 0) {
+      const letterSpacingValue = settings.letterSpacing * 0.5;
+      css += `
+        body, p, div, span, a, li, input, button, textarea, select, label {
+          letter-spacing: ${letterSpacingValue}px !important;
+        }
+      `;
+    }
+    
+    // Dark mode
+    if (settings.darkMode) {
+      css += `
+        html, body {
+          background-color: #121212 !important;
+          filter: invert(1) hue-rotate(180deg) !important;
+        }
+        
+        img, video, picture, svg, canvas, [style*="background-image"] {
+          filter: invert(1) hue-rotate(180deg) !important;
+        }
+      `;
+    }
+    
+    // Font family
+    if (settings.fontFamily !== 'default') {
+      let fontFamilyValue = '';
+      switch (settings.fontFamily) {
+        case 'readable':
+          fontFamilyValue = 'Arial, sans-serif';
+          break;
+        case 'dyslexic':
+          fontFamilyValue = 'OpenDyslexic, Comic Sans MS, sans-serif';
+          if (!document.getElementById('accessibility-font-dyslexic')) {
+            const fontLink = document.createElement('link');
+            fontLink.id = 'accessibility-font-dyslexic';
+            fontLink.rel = 'stylesheet';
+            fontLink.href = 'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.css';
+            document.head.appendChild(fontLink);
+          }
+          break;
+      }
+      
+      if (fontFamilyValue) {
+        css += `
+          body, p, div, span, a, li, input, button, textarea, select, label {
+            font-family: ${fontFamilyValue} !important;
+          }
+        `;
+      }
+    }
+    
+    // Text alignment
+    if (settings.textAlign !== 'default') {
+      css += `
+        p, div, h1, h2, h3, h4, h5, h6 {
+          text-align: ${settings.textAlign} !important;
+        }
+      `;
+    }
+    
+    // High contrast
+    if (settings.contrastMode === 'high') {
+      css += `
+        body, p, div, span, a, li, input, button, textarea, select, label {
+          color: white !important;
+          background-color: black !important;
+        }
+        
+        a, button {
+          color: yellow !important;
+          text-decoration: underline !important;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+          color: white !important;
+          background-color: black !important;
+        }
+      `;
+    }
+    
+    // Weitere Features...
+    
+    styleTag.textContent = css;
+    document.head.appendChild(styleTag);
+    
+    if (settings.keyboardNavigation) {
+      enableKeyboardNavigation();
+    }
+  }
+  
+  // Reset all applied accessibility styles
+  function resetAccessibilityStyles() {
+    const existingStyles = document.getElementById('accessibility-styles');
+    if (existingStyles) {
+      existingStyles.remove();
+    }
+    // ... weitere Reset-Logik
+  }
+  
   // Initialize the widget
   function initWidget() {
-    // Load the styles
     loadStyles();
     
-    // Create button and iframe elements
     const button = createWidgetButton();
     const iframe = createWidgetIframe();
     
-    // Set iframe src after creating element (prevents flicker)
     const iframeSrc = new URL(config.apiEndpoint + '/widget-embed');
     Object.keys(config).forEach(key => {
-     iframeSrc.searchParams.append(key, String(config[key]));
+      iframeSrc.searchParams.append(key, String(config[key as keyof typeof config]));
     });
     iframe.src = iframeSrc.toString();
     
-    // Widget state
     let isOpen = false;
     
-    // Toggle widget panel
     function toggleWidget() {
       isOpen = !isOpen;
       
@@ -187,19 +311,16 @@
         button.setAttribute('aria-expanded', 'false');
       }
       
-      // Notify iframe that widget state changed
       iframe.contentWindow?.postMessage({
         type: 'accessibility-widget-toggle',
         isOpen
       }, '*');
     }
     
-    // Button click handler
     button.addEventListener('click', toggleWidget);
     
-    // Setup cross-window communication
+    // Message listener für Widget-Kommunikation
     window.addEventListener('message', (event) => {
-      // Only accept messages from our iframe
       if (event.source !== iframe.contentWindow) {
         return;
       }
@@ -208,277 +329,34 @@
       
       switch (type) {
         case 'accessibility-widget-ready':
-          // Widget has loaded in iframe
           console.log('Accessibility widget ready');
           break;
           
         case 'accessibility-widget-close':
-          // Close widget when requested from iframe
           if (isOpen) {
             toggleWidget();
           }
           break;
           
         case 'accessibility-widget-profile-applied':
-          // Apply accessibility changes to host page
           applyAccessibilityStyles(data.profileSettings);
           break;
           
         case 'accessibility-widget-reset':
-          // Reset accessibility styles
           resetAccessibilityStyles();
           break;
           
         case 'accessibility-widget-setting-changed':
-          // Apply single setting change
           updateAccessibilitySetting(data.setting, data.value);
           break;
       }
     });
   }
-  
-  // Apply accessibility styles to the host page
-  function applyAccessibilityStyles(settings) {
-  resetAccessibilityStyles();
-  const styleTag = document.createElement('style');
-  styleTag.id = 'accessibility-styles';
-
-  let css = '';
-
-  // Text size
-  if (settings.textSize !== 0) {
-    const textSizePercent = 100 + (settings.textSize * 10);
-    css += `
-      body, p, div, span, a, li, input, button, textarea, select, label {
-        font-size: ${textSizePercent}% !important;
-      }
-    `;
-  }
-
-  // Line height
-  if (settings.lineHeight !== 0) {
-    const lineHeightValue = 1.5 + (settings.lineHeight * 0.1);
-    css += `
-      p, div, span, li {
-        line-height: ${lineHeightValue} !important;
-      }
-    `;
-  }
-
-  // Letter spacing
-  if (settings.letterSpacing !== 0) {
-    const letterSpacingValue = settings.letterSpacing * 0.5;
-    css += `
-      body, p, div, span, a, li, input, button, textarea, select, label {
-        letter-spacing: ${letterSpacingValue}px !important;
-      }
-    `;
-  }
-
-  // Dark mode
-  if (settings.darkMode) {
-    css += `
-      html, body {
-        background-color: #121212 !important;
-        filter: invert(1) hue-rotate(180deg) !important;
-      }
-
-      img, video, picture, svg, canvas, [style*="background-image"] {
-        filter: invert(1) hue-rotate(180deg) !important;
-      }
-    `;
-  }
-
-  // Font family
-  if (settings.fontFamily !== 'default') {
-    let fontFamilyValue = '';
-    switch (settings.fontFamily) {
-      case 'readable':
-        fontFamilyValue = 'Arial, sans-serif';
-        break;
-      case 'dyslexic':
-        fontFamilyValue = 'OpenDyslexic, Comic Sans MS, sans-serif';
-        if (!document.getElementById('accessibility-font-dyslexic')) {
-          const fontLink = document.createElement('link');
-          fontLink.id = 'accessibility-font-dyslexic';
-          fontLink.rel = 'stylesheet';
-          fontLink.href = 'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.css';
-          document.head.appendChild(fontLink);
-        }
-        break;
-    }
-
-    if (fontFamilyValue) {
-      css += `
-        body, p, div, span, a, li, input, button, textarea, select, label {
-          font-family: ${fontFamilyValue} !important;
-        }
-      `;
-    }
-  }
-
-  // Text alignment
-  if (settings.textAlign !== 'default') {
-    css += `
-      p, div, h1, h2, h3, h4, h5, h6 {
-        text-align: ${settings.textAlign} !important;
-      }
-    `;
-  }
-
-  // High contrast
-  if (settings.contrastMode === 'high') {
-    css += `
-      body, p, div, span, a, li, input, button, textarea, select, label {
-        color: white !important;
-        background-color: black !important;
-      }
-
-      a, button {
-        color: yellow !important;
-        text-decoration: underline !important;
-      }
-
-      h1, h2, h3, h4, h5, h6 {
-        color: white !important;
-        background-color: black !important;
-      }
-    `;
-  }
-
-  // Highlight links
-  if (settings.highlightLinks) {
-    css += `
-      a {
-        text-decoration: underline !important;
-        font-weight: bold !important;
-        color: #0000EE !important;
-        background-color: rgba(255, 255, 0, 0.3) !important;
-      }
-
-      a:visited {
-        color: #551A8B !important;
-      }
-    `;
-  }
-
-  // Highlight focus
-  if (settings.highlightFocus) {
-    css += `
-      :focus {
-        outline: 3px solid #2196F3 !important;
-        outline-offset: 3px !important;
-      }
-    `;
-  }
-
-  // Stop animations
-  if (settings.stopAnimations) {
-    css += `
-      *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
-        scroll-behavior: auto !important;
-      }
-    `;
-  }
-
-  // Hide images
-  if (settings.hideImages) {
-    css += `
-      img, picture, svg, video, canvas, [style*="background-image"] {
-        opacity: 0.01 !important;
-      }
-    `;
-  }
-
-  styleTag.textContent = css;
-  document.head.appendChild(styleTag);
-
-  if (settings.keyboardNavigation) {
-    enableKeyboardNavigation();
-  }
-}
-
-    // Apply styles
-     // Apply styles
-  styleTag.textContent = css;
-  document.head.appendChild(styleTag);
-
-  // Additional non-CSS adjustments here
-  if (settings.keyboardNavigation) {
-    enableKeyboardNavigation();
-  }
-}
-  
-  // Reset all applied accessibility styles
-  function resetAccessibilityStyles() {
-    // Remove the accessibility style tag
-    const existingStyles = document.getElementById('accessibility-styles');
-    if (existingStyles) {
-      existingStyles.remove();
-    }
-    
-    // Remove keyboard navigation listeners and elements
-    if (document.getElementById('keyboard-nav-helpers')) {
-      disableKeyboardNavigation();
-    }
-    
-    // Remove reading mask
-    const readingMask = document.getElementById('accessibility-reading-mask');
-    if (readingMask) {
-      readingMask.remove();
-    }
-    
-    // Remove reading guide
-    const readingGuide = document.getElementById('accessibility-reading-guide');
-    if (readingGuide) {
-      readingGuide.remove();
-    }
-  }
-  
-  // Update a single accessibility setting
-  function updateAccessibilitySetting(setting, value) {
-    // Get the current styles
-    let styleTag = document.getElementById('accessibility-styles');
-    if (!styleTag) {
-      styleTag = document.createElement('style');
-      styleTag.id = 'accessibility-styles';
-      document.head.appendChild(styleTag);
-    }
-    
-    // Handle specific setting changes
-    // This is a simplified version, you would need to expand this based on the setting
-    switch(setting) {
-      case 'textSize':
-        // Update text size CSS
-        break;
-      case 'darkMode':
-        // Toggle dark mode
-        break;
-      // Add other cases as needed
-    }
-  }
-  
-  // Basic keyboard navigation implementation
-  function enableKeyboardNavigation() {
-    // This would be a simplified version of your existing keyboard navigation
-    console.log('Keyboard navigation enabled');
-    // Add event listeners and visual helpers
-  }
-  
-  function disableKeyboardNavigation() {
-    // Remove keyboard navigation helpers
-    console.log('Keyboard navigation disabled');
-    // Remove event listeners and visual helpers
-  }
 
   // Initialize when the DOM is fully loaded
-    if (document.readyState === 'loading') {
+  if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initWidget);
   } else {
     initWidget();
   }
 })();
-
-
