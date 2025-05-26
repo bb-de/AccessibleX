@@ -239,164 +239,166 @@
   
   // Apply accessibility styles to the host page
   function applyAccessibilityStyles(settings) {
-    // Remove existing styles
-    resetAccessibilityStyles();
-    
-    // Create a new style tag
-    const styleTag = document.createElement('style');
-    styleTag.id = 'accessibility-styles';
-    
-    // Build CSS based on settings
-    let css = '';
-    
-    // Text size adjustments
-    if (settings.textSize !== 0) {
-      const textSizePercent = 100 + (settings.textSize * 10);
-      css += `
-  body, p, div, span, a, li, input, button, textarea, select, label {
-    font-size: ${textSizePercent}% !important;
+  resetAccessibilityStyles();
+  const styleTag = document.createElement('style');
+  styleTag.id = 'accessibility-styles';
+
+  let css = '';
+
+  // Text size
+  if (settings.textSize !== 0) {
+    const textSizePercent = 100 + (settings.textSize * 10);
+    css += `
+      body, p, div, span, a, li, input, button, textarea, select, label {
+        font-size: ${textSizePercent}% !important;
+      }
+    `;
   }
-`;
+
+  // Line height
+  if (settings.lineHeight !== 0) {
+    const lineHeightValue = 1.5 + (settings.lineHeight * 0.1);
+    css += `
+      p, div, span, li {
+        line-height: ${lineHeightValue} !important;
+      }
+    `;
+  }
+
+  // Letter spacing
+  if (settings.letterSpacing !== 0) {
+    const letterSpacingValue = settings.letterSpacing * 0.5;
+    css += `
+      body, p, div, span, a, li, input, button, textarea, select, label {
+        letter-spacing: ${letterSpacingValue}px !important;
+      }
+    `;
+  }
+
+  // Dark mode
+  if (settings.darkMode) {
+    css += `
+      html, body {
+        background-color: #121212 !important;
+        filter: invert(1) hue-rotate(180deg) !important;
+      }
+
+      img, video, picture, svg, canvas, [style*="background-image"] {
+        filter: invert(1) hue-rotate(180deg) !important;
+      }
+    `;
+  }
+
+  // Font family
+  if (settings.fontFamily !== 'default') {
+    let fontFamilyValue = '';
+    switch (settings.fontFamily) {
+      case 'readable':
+        fontFamilyValue = 'Arial, sans-serif';
+        break;
+      case 'dyslexic':
+        fontFamilyValue = 'OpenDyslexic, Comic Sans MS, sans-serif';
+        if (!document.getElementById('accessibility-font-dyslexic')) {
+          const fontLink = document.createElement('link');
+          fontLink.id = 'accessibility-font-dyslexic';
+          fontLink.rel = 'stylesheet';
+          fontLink.href = 'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.css';
+          document.head.appendChild(fontLink);
+        }
+        break;
     }
-    
-    // Line height adjustments
-    if (settings.lineHeight !== 0) {
-      const lineHeightValue = 1.5 + (settings.lineHeight * 0.1);
+
+    if (fontFamilyValue) {
       css += `
-        p, div, span, li {
-          line-height: \${lineHeightValue} !important;
-        }
-      \`;
-    }
-    
-    // Letter spacing
-    if (settings.letterSpacing !== 0) {
-      const letterSpacingValue = settings.letterSpacing * 0.5;
-      css += \`
         body, p, div, span, a, li, input, button, textarea, select, label {
-          letter-spacing: \${letterSpacingValue}px !important;
+          font-family: ${fontFamilyValue} !important;
         }
-      \`;
+      `;
     }
-    
-    // Dark mode
-    if (settings.darkMode) {
-      css += \`
-        html, body {
-          background-color: #121212 !important;
-          filter: invert(1) hue-rotate(180deg) !important;
-        }
-        
-        img, video, picture, svg, canvas, [style*="background-image"] {
-          filter: invert(1) hue-rotate(180deg) !important;
-        }
-      \`;
-    }
-    
-    // Font family
-    if (settings.fontFamily !== 'default') {
-      let fontFamilyValue = '';
-      
-      switch (settings.fontFamily) {
-        case 'readable':
-          fontFamilyValue = 'Arial, sans-serif';
-          break;
-        case 'dyslexic':
-          fontFamilyValue = 'OpenDyslexic, Comic Sans MS, sans-serif';
-          // Add OpenDyslexic font if it's not already loaded
-          if (!document.getElementById('accessibility-font-dyslexic')) {
-            const fontLink = document.createElement('link');
-            fontLink.id = 'accessibility-font-dyslexic';
-            fontLink.rel = 'stylesheet';
-            fontLink.href = 'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.css';
-            document.head.appendChild(fontLink);
-          }
-          break;
+  }
+
+  // Text alignment
+  if (settings.textAlign !== 'default') {
+    css += `
+      p, div, h1, h2, h3, h4, h5, h6 {
+        text-align: ${settings.textAlign} !important;
       }
-      
-      if (fontFamilyValue) {
-        css += \`
-          body, p, div, span, a, li, input, button, textarea, select, label {
-            font-family: \${fontFamilyValue} !important;
-          }
-        \`;
+    `;
+  }
+
+  // High contrast
+  if (settings.contrastMode === 'high') {
+    css += `
+      body, p, div, span, a, li, input, button, textarea, select, label {
+        color: white !important;
+        background-color: black !important;
       }
-    }
-    
-    // Text alignment
-    if (settings.textAlign !== 'default') {
-      css += \`
-        p, div, h1, h2, h3, h4, h5, h6 {
-          text-align: \${settings.textAlign} !important;
-        }
-      \`;
-    }
-    
-    // High contrast
-    if (settings.contrastMode === 'high') {
-      css += \`
-        body, p, div, span, a, li, input, button, textarea, select, label {
-          color: white !important;
-          background-color: black !important;
-        }
-        
-        a, button {
-          color: yellow !important;
-          text-decoration: underline !important;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-          color: white !important;
-          background-color: black !important;
-        }
-      \`;
-    }
-    
-    // Highlight links
-    if (settings.highlightLinks) {
-      css += \`
-        a {
-          text-decoration: underline !important;
-          font-weight: bold !important;
-          color: #0000EE !important;
-          background-color: rgba(255, 255, 0, 0.3) !important;
-        }
-        
-        a:visited {
-          color: #551A8B !important;
-        }
-      \`;
-    }
-    
-    // Highlight focus
-    if (settings.highlightFocus) {
-      css += \`
-        :focus {
-          outline: 3px solid #2196F3 !important;
-          outline-offset: 3px !important;
-        }
-      \`;
-    }
-    
-    // Stop animations
-    if (settings.stopAnimations) {
-      css += \`
-        *, *::before, *::after {
-          animation: none !important;
-          transition: none !important;
-          scroll-behavior: auto !important;
-        }
-      \`;
-    }
-    
-    // Hide images
-    if (settings.hideImages) {
-      css += \`
-        img, picture, svg, video, canvas, [style*="background-image"] {
-          opacity: 0.01 !important;
-        }
-      \`;
-    }
+
+      a, button {
+        color: yellow !important;
+        text-decoration: underline !important;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        color: white !important;
+        background-color: black !important;
+      }
+    `;
+  }
+
+  // Highlight links
+  if (settings.highlightLinks) {
+    css += `
+      a {
+        text-decoration: underline !important;
+        font-weight: bold !important;
+        color: #0000EE !important;
+        background-color: rgba(255, 255, 0, 0.3) !important;
+      }
+
+      a:visited {
+        color: #551A8B !important;
+      }
+    `;
+  }
+
+  // Highlight focus
+  if (settings.highlightFocus) {
+    css += `
+      :focus {
+        outline: 3px solid #2196F3 !important;
+        outline-offset: 3px !important;
+      }
+    `;
+  }
+
+  // Stop animations
+  if (settings.stopAnimations) {
+    css += `
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    `;
+  }
+
+  // Hide images
+  if (settings.hideImages) {
+    css += `
+      img, picture, svg, video, canvas, [style*="background-image"] {
+        opacity: 0.01 !important;
+      }
+    `;
+  }
+
+  styleTag.textContent = css;
+  document.head.appendChild(styleTag);
+
+  if (settings.keyboardNavigation) {
+    enableKeyboardNavigation();
+  }
+}
 
     // Apply styles
     styleTag.textContent = css;
@@ -476,6 +478,6 @@
   } else {
     initWidget();
   }
-  }
 })();
+
 
