@@ -72,7 +72,7 @@
   function createWidgetIframe() {
     const iframe = document.createElement('iframe');
     iframe.id = 'accessiblex-widget-iframe';
-    iframe.src = `https://accessiblex.netlify.app/widget?position=${config.position}&color=${encodeURIComponent(config.color)}&language=${config.language}`;
+    iframe.src = `https://accessiblex.netlify.app/?embed=true&hideButton=true&position=${config.position}&color=${encodeURIComponent(config.color)}&language=${config.language}`;
     iframe.style.cssText = `
       position: fixed;
       z-index: 999998;
