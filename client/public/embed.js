@@ -160,7 +160,7 @@
     // Set iframe src after creating element (prevents flicker)
     const iframeSrc = new URL(config.apiEndpoint + '/widget-embed');
     Object.keys(config).forEach(key => {
-      iframeSrc.searchParams.append(key, String(config[key as keyof typeof config]));
+     iframeSrc.searchParams.append(key, String(config[key]));
     });
     iframe.src = iframeSrc.toString();
     
