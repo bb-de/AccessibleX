@@ -9,11 +9,25 @@ export default function Home() {
   const urlParams = new URLSearchParams(window.location.search);
   const isEmbedMode = urlParams.get('embed') === 'true';
   
-  // If embed mode, show only the widget (without script)
+  // If embed mode, show only the pure widget panel
   if (isEmbedMode) {
     return (
-      <div className="min-h-screen bg-transparent">
-        <AccessibilityWidget isEmbedded={true} />
+      <div style={{ 
+        background: 'transparent',
+        minHeight: '100vh',
+        padding: 0,
+        margin: 0,
+        overflow: 'hidden'
+      }}>
+        <AccessibilityWidget 
+          isEmbedded={true}
+          onClose={() => {
+            // Send message to parent window to close iframe
+            if (window.parent && window.parent !== window) {
+              window.parent.postMessage({ type: 'accessibility-widget-close' }, '*');
+            }
+          }}
+        />
       </div>
     );
   }
@@ -174,8 +188,18 @@ export default function Home() {
         <p>© 2025 brandingbrothers.de · Alle Rechte vorbehalten</p>
       </footer>
       
-      {/* Original React Widget wieder aktivieren für die Hauptseite */}
-      <AccessibilityWidget />
+      {/* Script-Widget direkt einbinden */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          // Widget-Script direkt laden
+          (function() {
+            if (document.getElementById('accessiblex-widget-button')) return;
+            const script = document.createElement('script');
+            script.src = '/embed.js';
+            document.head.appendChild(script);
+          })();
+        `
+      }} />
     </div>
   );
 }
