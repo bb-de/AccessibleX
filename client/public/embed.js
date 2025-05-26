@@ -471,9 +471,10 @@
   }
 
   // Initialize when the DOM is fully loaded
-  if (document.readyState === 'loading') {
+    if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initWidget);
   } else {
     initWidget();
   }
 })();
+
