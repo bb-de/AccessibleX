@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'wouter';
-// Importiere die vollständige Widget-Komponente
-import { AccessibilityWidget } from '@/components/accessibility/AccessibilityWidget';
 import { LogoImage } from '@/components/accessibility/LogoImage';
 import { Helmet } from 'react-helmet';
 
@@ -60,14 +58,14 @@ export default function Home() {
               </ul>
               <div className="flex flex-wrap gap-4">
                 <Link href="/widget-integration">
-                  <a className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                  <span className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer inline-block">
                     Widget für Ihre Website
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/widget-docs">
-                  <a className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                  <span className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors cursor-pointer inline-block">
                     Technische Dokumentation
-                  </a>
+                  </span>
                 </Link>
               </div>
             </div>
@@ -152,9 +150,9 @@ export default function Home() {
             Integrieren Sie unser Widget in Ihre Website und verbessern Sie die Zugänglichkeit für alle Ihre Besucher.
           </p>
           <Link href="/widget-integration">
-            <a className="px-8 py-4 bg-blue-600 text-white rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors inline-block">
+            <span className="px-8 py-4 bg-blue-600 text-white rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors cursor-pointer inline-block">
               Jetzt kostenlos testen
-            </a>
+            </span>
           </Link>
         </section>
       </main>
@@ -163,8 +161,18 @@ export default function Home() {
         <p>© 2025 brandingbrothers.de · Alle Rechte vorbehalten</p>
       </footer>
       
-      {/* Das AccessibilityWidget einbinden */}
-      <AccessibilityWidget />
+      {/* Script-Widget direkt einbinden anstatt der Komponente */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          // Inline Widget Script für die Demo-Seite
+          (function() {
+            if (document.getElementById('accessiblex-widget-button')) return;
+            const script = document.createElement('script');
+            script.src = '/embed.js';
+            document.head.appendChild(script);
+          })();
+        `
+      }} />
     </div>
   );
 }
