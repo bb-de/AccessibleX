@@ -32,13 +32,10 @@ export function WidgetPanel({
   const [activeTab, setActiveTab] = useState<TabType>("profiles");
   const { toggleWidget, resetSettings, translations } = useAccessibility();
 
-  // External trigger: embed.js dispatches "AccessibleXForceOpen"
+  // 🔁 REAGIERT auf CustomEvent von embed.js
   useEffect(() => {
     const handler = () => {
-      const panel = document.getElementById("accessibility-panel");
-      if (panel?.classList.contains("visible")) {
-        toggleWidget(true); // ensure internal state aligns
-      }
+      toggleWidget(true); // zeigt das Panel
     };
     window.addEventListener("AccessibleXForceOpen", handler);
     return () => window.removeEventListener("AccessibleXForceOpen", handler);
