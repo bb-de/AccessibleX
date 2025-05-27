@@ -1,4 +1,3 @@
-
 /**
  * AccessibleX Widget Embed - Button mit Panel-Trigger
  * Erstellt Button und öffnet bei Klick das Panel über CustomEvent
