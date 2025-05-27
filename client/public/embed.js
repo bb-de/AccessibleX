@@ -20,8 +20,8 @@
     position: currentScript.dataset.position || 'bottom-right',
     language: currentScript.dataset.language || 'en',
     color: currentScript.dataset.color || '#1976D2',
-    // URL zum bestehenden Widget
-    widgetUrl: 'https://25b615b4-07e9-4029-b10c-54fd7e4f443c-00-2t2kt5l2qjeqe.spock.replit.dev'
+    // URL zum bestehenden Widget-only - flexibel konfigurierbar
+    widgetUrl: currentScript.dataset.widgetUrl || 'https://accessiblex.netlify.app/widget-only'
   };
 
   // Create widget button - genau wie im bestehenden System
