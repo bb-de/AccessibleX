@@ -1,15 +1,30 @@
-/**
- * AccessibleX Widget Embed - Button mit Panel-Trigger
- * Erstellt Button und öffnet bei Klick das Panel über CustomEvent
- */
+
 (function () {
   'use strict';
 
   if (window.AccessibleXWidget) return;
   window.AccessibleXWidget = true;
 
-  function dispatchPanelOpen() {
-    window.dispatchEvent(new Event("AccessibleXForceOpen"));
+  function openWidgetIframe() {
+    if (document.getElementById('accessiblex-iframe')) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'accessiblex-iframe';
+    iframe.src = 'https://accessiblex.netlify.app/widget.html';
+    iframe.title = 'AccessibleX Widget';
+    iframe.style.cssText = `
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 360px;
+      height: 600px;
+      border: none;
+      z-index: 999999;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      border-radius: 12px 12px 0 0;
+    `;
+
+    document.body.appendChild(iframe);
   }
 
   function createWidgetButton() {
@@ -38,15 +53,51 @@
       z-index: 999998;
     `;
 
-    button.addEventListener('click', dispatchPanelOpen);
+    button.addEventListener('click', openWidgetIframe);
     document.body.appendChild(button);
+  }
+
+  function handleMessage(event) {
+    const msg = event.data;
+    if (typeof msg !== 'object' || !msg.type) return;
+
+    switch (msg.type) {
+      case 'increase-font':
+        document.body.style.fontSize = '1.25em';
+        break;
+      case 'high-contrast':
+        document.documentElement.classList.add('accessiblex-contrast');
+        break;
+      case 'highlight-links':
+        document.querySelectorAll('a').forEach(link => {
+          link.style.outline = '3px solid #f00';
+          link.style.backgroundColor = '#ff0';
+        });
+        break;
+      case 'dyslexia-font':
+        document.body.style.fontFamily = '"Comic Sans MS", "Arial", sans-serif';
+        break;
+      case 'reset':
+        document.body.style.fontSize = '';
+        document.documentElement.classList.remove('accessiblex-contrast');
+        document.body.style.fontFamily = '';
+        document.querySelectorAll('a').forEach(link => {
+          link.style.outline = '';
+          link.style.backgroundColor = '';
+        });
+        break;
+    }
   }
 
   function init() {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', createWidgetButton);
+      document.addEventListener('DOMContentLoaded', () => {
+        createWidgetButton();
+        window.addEventListener('message', handleMessage);
+      });
     } else {
       createWidgetButton();
+      window.addEventListener('message', handleMessage);
     }
   }
 
