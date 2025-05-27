@@ -31,11 +31,29 @@ export function WidgetPanel({
 }: WidgetPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>("profiles");
   const { toggleWidget, resetSettings, translations } = useAccessibility();
+const sendStatusUpdate = (status: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "AccessibleX:Status", status }, "*");
+    }
+  };
+useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (!e.data || typeof e.data !== "object") return;
+      if (e.data.type === "AccessibleX:Ping") {
+        window.parent.postMessage({ type: "AccessibleX:Pong" }, "*");
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
-  // 🔁 REAGIERT auf CustomEvent von embed.js
+  // External trigger: embed.js dispatches "AccessibleXForceOpen"
   useEffect(() => {
     const handler = () => {
-      toggleWidget(true); // zeigt das Panel
+      const panel = document.getElementById("accessibility-panel");
+      if (panel?.classList.contains("visible")) {
+        toggleWidget(true); // ensure internal state aligns
+      }
     };
     window.addEventListener("AccessibleXForceOpen", handler);
     return () => window.removeEventListener("AccessibleXForceOpen", handler);
@@ -162,3 +180,42 @@ function AccessibilityIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+
+
+  // Sprache automatisch anhand der Browsersprache setzen
+  useEffect(() => {
+    const lang = navigator.language?.slice(0, 2);
+    if (lang && translations?.setLanguage) {
+      translations.setLanguage(lang);
+    }
+  }, [translations]);
+
+  // Widget-Einstellungen beim Mount laden und bei Änderungen speichern
+  useEffect(() => {
+    const saved = localStorage.getItem("accessiblex-settings");
+    if (saved) {
+      try {
+        const settings = JSON.parse(saved);
+        if (settings.fontSize) {
+          document.body.style.fontSize = settings.fontSize;
+        }
+        if (settings.contrast) {
+          document.documentElement.classList.add("accessiblex-contrast");
+        }
+      } catch (e) {
+        console.warn("Einstellungen konnten nicht geladen werden.");
+      }
+    }
+
+    const observer = new MutationObserver(() => {
+      const state = {
+        fontSize: document.body.style.fontSize || null,
+        contrast: document.documentElement.classList.contains("accessiblex-contrast"),
+      };
+      localStorage.setItem("accessiblex-settings", JSON.stringify(state));
+    });
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'], subtree: false });
+    return () => observer.disconnect();
+  }, []);
