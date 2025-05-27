@@ -6,19 +6,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import { AccessibilityProvider } from "./contexts/AccessibilityContext";
-import { WidgetIntegrationPage } from "@/pages/WidgetIntegrationPage";
-import { WidgetDocsPage } from "@/pages/WidgetDocsPage";
-import { WidgetEmbedPage } from "@/pages/WidgetEmbedPage";
-import { WidgetOnlyPage } from "@/pages/WidgetOnlyPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/widget" component={WidgetEmbedPage} />
-      <Route path="/widget-only" component={WidgetOnlyPage} />
-      <Route path="/widget-integration" component={WidgetIntegrationPage} />
-      <Route path="/widget-docs" component={WidgetDocsPage} />
       <Route component={NotFound} />
     </Switch>
   );
