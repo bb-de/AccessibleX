@@ -98,20 +98,20 @@
     widgetButton = button;
   }
 
-  // Panel als iframe laden
+  // Panel als iframe laden (verwendet vorhandene PanelOnly.tsx)
   function createWidgetPanel() {
     const iframe = document.createElement('iframe');
     iframe.id = 'accessibility-panel-iframe';
-    iframe.src = 'https://accessiblex.netlify.app/';
+    iframe.src = 'https://accessiblex.netlify.app/panel-only';
     iframe.style.cssText = `
       position: fixed;
-      right: 20px;
+      right: 16px;
       bottom: 90px;
       width: 340px;
       height: 500px;
       border: none;
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
       z-index: 9998;
       transform: translateY(-100%);
       opacity: 0;
