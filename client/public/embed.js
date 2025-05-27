@@ -4,14 +4,16 @@
   if (window.AccessibleXWidget) return;
   window.AccessibleXWidget = true;
 
-  function showPanel() {
+  function showPanel(retries = 10) {
     const panel = document.getElementById('accessibility-panel');
     if (panel) {
       panel.classList.remove('translate-y-[-100%]', 'opacity-0', 'invisible');
       panel.classList.add('translate-y-0', 'opacity-100', 'visible');
       panel.setAttribute('aria-hidden', 'false');
+    } else if (retries > 0) {
+      setTimeout(() => showPanel(retries - 1), 300);
     } else {
-      console.warn('Widget panel not found');
+      console.warn('Widget panel not found after retries.');
     }
   }
 
