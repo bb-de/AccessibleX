@@ -19,11 +19,13 @@ import {
 
 interface WidgetPanelProps {
   isOpen: boolean;
+  isEmbedded?: boolean;
+  onClose?: () => void;
 }
 
 type TabType = "profiles" | "vision" | "content" | "navigation";
 
-export function WidgetPanel({ isOpen }: WidgetPanelProps) {
+export function WidgetPanel({ isOpen, isEmbedded = false, onClose }: WidgetPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>("profiles");
   const { toggleWidget, resetSettings, translations } = useAccessibility();
 
@@ -34,7 +36,7 @@ export function WidgetPanel({ isOpen }: WidgetPanelProps) {
   return (
     <div 
       id="accessibility-panel" 
-      className={`fixed top-10 right-4 bg-white rounded-xl shadow-lg transition-all duration-300 transform z-[9999] ${
+      className={`fixed right-4 bg-white rounded-xl shadow-lg transition-all duration-300 transform z-[9999] ${
         isOpen ? 'translate-y-0 opacity-100 visible' : 'translate-y-[-100%] opacity-0 invisible'
       }`}
       style={{
@@ -43,7 +45,8 @@ export function WidgetPanel({ isOpen }: WidgetPanelProps) {
         maxWidth: '340px',
         maxHeight: '90vh',
         overflowY: 'scroll',
-        scrollBehavior: 'smooth'
+        scrollBehavior: 'smooth',
+        bottom: '90px' // 90px oberhalb des Buttons (Button ist 60px hoch + 20px Abstand + 10px Puffer)
       }}
       aria-hidden={!isOpen}
       onClick={(e) => e.stopPropagation()} // Prevent clicks inside the panel from closing it
@@ -68,7 +71,13 @@ export function WidgetPanel({ isOpen }: WidgetPanelProps) {
               id="close-panel-btn"
               aria-label={translations.closeAccessibilityMenu}
               className="text-gray-500 hover:text-gray-700 p-1 rounded flex items-center"
-              onClick={toggleWidget}
+              onClick={() => {
+                if (isEmbedded && onClose) {
+                  onClose();
+                } else {
+                  toggleWidget();
+                }
+              }}
             >
               <X className="h-5 w-5" />
             </button>
