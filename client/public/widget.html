@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>AccessibleX Widget</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1rem;
+    }
+    button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>AccessibleX Widget</h2>
+  <p>Wähle ein Profil oder eine Einstellung:</p>
+  <button onclick="sendMessage('increase-font')">Schrift vergrößern</button>
+  <button onclick="sendMessage('high-contrast')">Kontrastmodus</button>
+  <button onclick="sendMessage('highlight-links')">Links hervorheben</button>
+  <button onclick="sendMessage('dyslexia-font')">Dyslexie-Schrift</button>
+  <button onclick="sendMessage('reset')">Zurücksetzen</button>
+
+  <script>
+    function sendMessage(type) {
+      window.parent.postMessage({ type }, '*');
+    }
+  </script>
+</body>
+</html>
