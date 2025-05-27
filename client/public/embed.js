@@ -1,30 +1,18 @@
-/**
- * AccessibleX Widget Embed - Einfacher Button mit Weiterleitung
- * Lädt das bestehende Widget aus Replit
- */
-(function() {
+(function () {
   'use strict';
-  
-  // Prevent multiple instances
-  if (window.AccessibleXWidget) {
-    return;
-  }
-  
+
+  if (window.AccessibleXWidget) return;
   window.AccessibleXWidget = true;
 
-  // Configuration from script tag
   const scripts = document.getElementsByTagName('script');
   const currentScript = scripts[scripts.length - 1];
-  
+
   const config = {
     position: currentScript.dataset.position || 'bottom-right',
-    language: currentScript.dataset.language || 'en',
-    color: currentScript.dataset.color || '#1976D2',
-    // URL zum bestehenden Widget - flexibel konfigurierbar
-    widgetUrl: currentScript.dataset.widgetUrl || 'https://accessiblex.netlify.app'
+    widgetUrl: currentScript.dataset.widgetUrl || 'https://accessiblex.netlify.app',
+    iconUrl: currentScript.dataset.icon || 'https://accessiblex.netlify.app/assets/widget-button-logo-Z7cPO0dw.png',
   };
 
-  // Direkt das Widget laden - kein Button nötig, da das Widget seinen eigenen Button hat
   function loadWidget() {
     const iframe = document.createElement('iframe');
     iframe.src = config.widgetUrl;
@@ -39,27 +27,44 @@
       pointer-events: none;
       z-index: 999999;
     `;
-    
-    // Erlaube pointer events nur für das Widget selbst
-    iframe.onload = function() {
-      try {
-        // Widget-Bereich für Pointer Events aktivieren
-        iframe.style.pointerEvents = 'auto';
-      } catch (e) {
-        console.log('Widget loaded successfully');
-      }
-    };
-    
+    iframe.onload = () => { iframe.style.pointerEvents = 'auto'; };
     document.body.appendChild(iframe);
-    return iframe;
   }
 
-  // Initialize widget
+  function createWidgetButton() {
+    const button = document.createElement('button');
+    const img = document.createElement('img');
+
+    img.src = config.iconUrl;
+    img.alt = 'Barrierefreiheits-Widget öffnen';
+    img.style.width = '64px';
+    img.style.height = '64px';
+    img.style.display = 'block';
+
+    button.appendChild(img);
+    button.setAttribute('aria-label', 'Barrierefreiheit öffnen');
+
+    button.style.cssText = `
+      position: fixed;
+      ${config.position.includes('bottom') ? 'bottom: 20px;' : 'top: 20px;'}
+      ${config.position.includes('right') ? 'right: 20px;' : 'left: 20px;'}
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      z-index: 999998;
+    `;
+
+    button.addEventListener('click', loadWidget);
+    document.body.appendChild(button);
+  }
+
   function init() {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', loadWidget);
+      document.addEventListener('DOMContentLoaded', createWidgetButton);
     } else {
-      loadWidget();
+      createWidgetButton();
     }
   }
 
