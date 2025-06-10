@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Test - Diagnose</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .debug-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        h1 { color: #333; }
+        h2 { color: #555; }
+        p { line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Widget Diagnose Testseite</h1>
+        <p>Diese Seite dient zur Diagnose des Barrierefreiheits-Widgets.</p>
+        
+        <div class="test-section">
+            <h2>1. Basis-Inhalte zum Testen</h2>
+            <p>Dies ist ein Beispieltext zum Testen der Widget-Funktionen.</p>
+            <h3>Eine Überschrift zum Hervorheben</h3>
+            <p>Ein weiterer Absatz mit einem <a href="#test">Test-Link</a> zum Testen der Link-Hervorhebung.</p>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100'%3E%3Crect width='200' height='100' fill='%23e0e0e0'/%3E%3Ctext x='100' y='55' text-anchor='middle' fill='%23666'%3ETestbild%3C/text%3E%3C/svg%3E" alt="Testbild" style="display: block; margin: 10px 0;">
+        </div>
+
+        <div class="test-section">
+            <h2>2. Debug-Funktionen</h2>
+            <button onclick="checkWidget()">Widget Status prüfen</button>
+            <button onclick="forceInitWidget()">Widget forciert initialisieren</button>
+            <button onclick="showConsoleErrors()">Konsolen-Fehler anzeigen</button>
+            <button onclick="checkElements()">DOM-Elemente prüfen</button>
+            
+            <div id="debug-output" class="debug-info">Klicken Sie auf einen Debug-Button...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Manual Widget Loading Test</h2>
+            <p>Falls das Widget nicht automatisch lädt, können Sie es hier manuell laden:</p>
+            <button onclick="loadWidget()">Widget manuell laden</button>
+            <button onclick="reloadWidget()">Widget neu laden</button>
+        </div>
+
+        <div class="test-section">
+            <h2>4. Browser Information</h2>
+            <div id="browser-info" class="debug-info"></div>
+        </div>
+    </div>
+
+    <!-- Das Widget-Script -->
+    <script 
+        src="/widget/accessibility.js" 
+        data-token-id="test-token-123" 
+        data-language="de"
+        data-position="bottom-right"
+        data-color="#0055A4"
+    ></script>
+
+    <!-- Debug-Script -->
+    <script>
+        let debugLog = [];
+        let originalConsoleError = console.error;
+        let originalConsoleWarn = console.warn;
+        
+        // Überschreibe console.error und console.warn um Fehler zu sammeln
+        console.error = function(...args) {
+            debugLog.push({type: 'error', message: args.join(' '), time: new Date().toLocaleTimeString()});
+            originalConsoleError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            debugLog.push({type: 'warn', message: args.join(' '), time: new Date().toLocaleTimeString()});
+            originalConsoleWarn.apply(console, args);
+        };
+
+        function updateDebugOutput(content) {
+            document.getElementById('debug-output').textContent = content;
+        }
+
+        function checkWidget() {
+            const button = document.getElementById('accessibility-toggle');
+            const panel = document.getElementById('accessibility-panel');
+            const styles = document.getElementById('accessibility-widget-styles');
+            
+            let status = `Widget Status Check (${new Date().toLocaleTimeString()}):\n\n`;
+            status += `• Toggle Button: ${button ? '✅ Gefunden' : '❌ Nicht gefunden'}\n`;
+            status += `• Widget Panel: ${panel ? '✅ Gefunden' : '❌ Nicht gefunden'}\n`;
+            status += `• Widget Styles: ${styles ? '✅ Gefunden' : '❌ Nicht gefunden'}\n`;
+            status += `• Global Flag: ${window.accessibilityWidgetLoaded ? '✅ Gesetzt' : '❌ Nicht gesetzt'}\n`;
+            
+            if (button) {
+                const rect = button.getBoundingClientRect();
+                const computedStyle = window.getComputedStyle(button);
+                status += `\nButton Details:\n`;
+                status += `• Position: ${rect.left.toFixed(0)}, ${rect.top.toFixed(0)}\n`;
+                status += `• Größe: ${rect.width.toFixed(0)} x ${rect.height.toFixed(0)}\n`;
+                status += `• Sichtbar: ${computedStyle.visibility}\n`;
+                status += `• Display: ${computedStyle.display}\n`;
+                status += `• Z-Index: ${computedStyle.zIndex}\n`;
+                status += `• Opacity: ${computedStyle.opacity}\n`;
+            }
+            
+            updateDebugOutput(status);
+        }
+
+        function forceInitWidget() {
+            updateDebugOutput('Forciere Widget-Initialisierung...\n');
+            
+            // Entferne existierende Widgets
+            const existingButton = document.getElementById('accessibility-toggle');
+            const existingPanel = document.getElementById('accessibility-panel');
+            const existingStyles = document.getElementById('accessibility-widget-styles');
+            
+            if (existingButton) existingButton.remove();
+            if (existingPanel) existingPanel.remove();
+            if (existingStyles) existingStyles.remove();
+            
+            // Reset global flag
+            window.accessibilityWidgetLoaded = false;
+            
+            // Neu laden
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+
+        function showConsoleErrors() {
+            let output = `Konsolen-Logs (${debugLog.length} Einträge):\n\n`;
+            
+            if (debugLog.length === 0) {
+                output += 'Keine Fehler oder Warnungen gefunden.';
+            } else {
+                debugLog.forEach((log, index) => {
+                    output += `${index + 1}. [${log.time}] ${log.type.toUpperCase()}: ${log.message}\n`;
+                });
+            }
+            
+            updateDebugOutput(output);
+        }
+
+        function checkElements() {
+            let output = 'DOM Element Check:\n\n';
+            
+            // Alle relevanten Elemente prüfen
+            const elements = {
+                'Body': document.body,
+                'Head': document.head,
+                'Scripts': document.querySelectorAll('script'),
+                'Widget Script': document.querySelector('script[src*="accessibility.js"]'),
+                'Accessibility Button': document.getElementById('accessibility-toggle'),
+                'Accessibility Panel': document.getElementById('accessibility-panel'),
+                'Widget Styles': document.getElementById('accessibility-widget-styles')
+            };
+            
+            Object.entries(elements).forEach(([name, element]) => {
+                if (name === 'Scripts') {
+                    output += `${name}: ${element.length} gefunden\n`;
+                    Array.from(element).forEach((script, i) => {
+                        output += `  Script ${i + 1}: ${script.src || 'inline'}\n`;
+                    });
+                } else {
+                    output += `${name}: ${element ? '✅' : '❌'}\n`;
+                    if (element && element.getAttribute) {
+                        const attrs = Array.from(element.attributes || []);
+                        if (attrs.length > 0) {
+                            output += `  Attribute: ${attrs.map(a => `${a.name}="${a.value}"`).join(', ')}\n`;
+                        }
+                    }
+                }
+            });
+            
+            updateDebugOutput(output);
+        }
+
+        function loadWidget() {
+            updateDebugOutput('Lade Widget manuell...\n');
+            
+            // Erstelle neues Script-Element
+            const script = document.createElement('script');
+            script.src = '/widget/accessibility.js?t=' + Date.now(); // Cache busting
+            script.setAttribute('data-token-id', 'test-token-manual');
+            script.setAttribute('data-language', 'de');
+            script.setAttribute('data-position', 'bottom-right');
+            script.setAttribute('data-color', '#FF5722');
+            
+            script.onload = () => {
+                updateDebugOutput('Widget-Script erfolgreich geladen!\n');
+                setTimeout(checkWidget, 1000);
+            };
+            
+            script.onerror = () => {
+                updateDebugOutput('Fehler beim Laden des Widget-Scripts!\n');
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        function reloadWidget() {
+            window.location.reload();
+        }
+
+        // Browser-Info anzeigen
+        function showBrowserInfo() {
+            const info = `Browser: ${navigator.userAgent}
+Sprache: ${navigator.language}
+Platform: ${navigator.platform}
+Cookies aktiviert: ${navigator.cookieEnabled}
+Online: ${navigator.onLine}
+Bildschirmauflösung: ${screen.width}x${screen.height}
+Viewport: ${window.innerWidth}x${window.innerHeight}
+Document Ready State: ${document.readyState}
+Aktuelle URL: ${window.location.href}
+Referrer: ${document.referrer || 'None'}
+Local Storage verfügbar: ${typeof(Storage) !== "undefined"}`;
+            
+            document.getElementById('browser-info').textContent = info;
+        }
+
+        // Page Load Events
+        document.addEventListener('DOMContentLoaded', () => {
+            debugLog.push({type: 'info', message: 'DOMContentLoaded gefeuert', time: new Date().toLocaleTimeString()});
+            showBrowserInfo();
+        });
+
+        window.addEventListener('load', () => {
+            debugLog.push({type: 'info', message: 'Window Load gefeuert', time: new Date().toLocaleTimeString()});
+            setTimeout(checkWidget, 2000); // Auto-check nach 2 Sekunden
+        });
+
+        // Tastenkürzel für Quick-Debug
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'd') {
+                e.preventDefault();
+                checkWidget();
+            }
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #0055A4;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #0055A4;
+            margin-top: 30px;
+        }
+        p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        .test-content {
+            margin: 20px 0;
+        }
+        .highlight {
+            background: yellow;
+            padding: 2px 4px;
+        }
+        a {
+            color: #0055A4;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        button {
+            background: #0055A4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #003d7a;
+        }
+        .image-test {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-test img {
+            max-width: 200px;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .animation-test {
+            width: 50px;
+            height: 50px;
+            background: #0055A4;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Accessibility Widget Test Seite</h1>
+        
+        <div class="debug-info">
+            <strong>Debug Info:</strong><br>
+            Current URL: <span id="current-url"></span><br>
+            Widget Button: <span id="widget-status">Wird geladen...</span><br>
+            Widget Panel: <span id="panel-status">Wird geladen...</span><br>
+            Console Logs: Siehe Browser-Konsole (F12)
+        </div>
+
+        <h2>Test-Inhalte für Barrierefreiheits-Features</h2>
+        
+        <div class="test-content">
+            <h3>Überschriften Test</h3>
+            <p>Dieser Text testet verschiedene Funktionen des Widgets.</p>
+            
+            <h4>Links Test</h4>
+            <p>Hier ist ein <a href="#test">Test-Link</a> und noch ein <a href="https://example.com">externer Link</a>.</p>
+            
+            <h4>Button Test</h4>
+            <button onclick="alert('Button geklickt!')">Test Button 1</button>
+            <button onclick="console.log('Button 2 geklickt')">Test Button 2</button>
+            
+            <h4>Bilder Test</h4>
+            <div class="image-test">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkJlaXNwaWVsIEJpbGQ8L3RleHQ+Cjwvc3ZnPg==" alt="Beispiel Bild für Test">
+            </div>
+            
+            <h4>Animation Test</h4>
+            <div class="animation-test"></div>
+            <p><em>Das blaue Quadrat sollte rotieren (stoppt mit "Animationen stoppen")</em></p>
+            
+            <h4>Text Formatierung</h4>
+            <p>Dies ist <strong>fetter Text</strong> und das ist <em>kursiver Text</em>.</p>
+            <p>Hier ist <span class="highlight">hervorgehobener Text</span> zum Testen.</p>
+            
+            <h4>Tastatur Navigation Test</h4>
+            <p>Verwende Tab, um zwischen den folgenden Elementen zu navigieren:</p>
+            <input type="text" placeholder="Textfeld 1" style="margin: 5px; padding: 5px;">
+            <input type="text" placeholder="Textfeld 2" style="margin: 5px; padding: 5px;">
+            <button>Fokus Button</button>
+        </div>
+        
+        <h2>Widget Test Anweisungen</h2>
+        <ol>
+            <li>Schaue in die Browser-Konsole (F12) für Debug-Meldungen</li>
+            <li>Das Widget sollte als blaues rundes Symbol unten rechts erscheinen</li>
+            <li>Klicke auf das Widget, um das Panel zu öffnen</li>
+            <li>Teste verschiedene Profile und Einstellungen</li>
+            <li>Verwende Alt+U als Tastaturkürzel zum Öffnen/Schließen</li>
+        </ol>
+        
+        <h2>Häufige Probleme</h2>
+        <ul>
+            <li><strong>Widget erscheint nicht:</strong> Überprüfe die Konsole auf JavaScript-Fehler</li>
+            <li><strong>Styling-Probleme:</strong> CSS-Konflikte mit der Seite</li>
+            <li><strong>Funktionen wirken nicht:</strong> DOM-Timing-Probleme</li>
+        </ul>
+    </div>
+
+    <!-- Widget Script Einbindung -->
+    <script 
+        src="/widget/accessibility.js" 
+        data-token-id="test-token-123" 
+        data-language="de"
+        data-position="bottom-right"
+        data-color="#0055A4"
+    ></script>
+
+    <!-- Debug Script -->
+    <script>
+        // Debug Information updaten
+        document.getElementById('current-url').textContent = window.location.href;
+        
+        // Widget Status überwachen
+        function checkWidgetStatus() {
+            const button = document.getElementById('accessibility-toggle');
+            const panel = document.getElementById('accessibility-panel');
+            
+            document.getElementById('widget-status').textContent = button ? 'Gefunden ✓' : 'Nicht gefunden ✗';
+            document.getElementById('panel-status').textContent = panel ? 'Gefunden ✓' : 'Nicht gefunden ✗';
+        }
+        
+        // Status alle 500ms überprüfen
+        setInterval(checkWidgetStatus, 500);
+        
+        // Initial nach DOM laden
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Test-Seite geladen');
+            setTimeout(checkWidgetStatus, 1000);
+        });
+        
+        // Global error handler
+        window.addEventListener('error', (e) => {
+            console.error('JavaScript Error:', e.error);
+        });
+        
+        console.log('Test-Seite JavaScript geladen');
+    </script>
+</body>
+</html>
